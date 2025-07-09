@@ -1,0 +1,39 @@
+ucli
+pm
+port-add 1/- 100G NONE
+port-add 2/- 100G NONE
+port-add 9/- 100G NONE
+port-add 10/- 100G NONE
+port-add 11/- 100G NONE
+port-add 12/- 100G NONE
+port-add 13/- 100G NONE
+port-add 14/- 100G NONE
+port-add 46/- 100G NONE
+port-add 48/- 100G NONE
+an-set -/- 2
+port-enb -/-
+port-add 65/0 10G NONE
+port-enb 65/0
+port-add 65/1 10G NONE
+port-enb 65/1
+port-add 64/- 100G NONE
+port-enb 64/-
+port-loopback 64/- mac-near
+port-add 34/- 100G NONE
+port-enb 34/-
+port-loopback 34/- mac-near
+port-add 57/- 100G NONE
+port-add 63/- 100G NONE
+port-add 47/- 100G NONE
+port-add 41/- 100G NONE
+port-add 42/- 100G NONE
+port-add 43/- 100G NONE
+port-add 44/- 100G NONE
+port-add 45/- 100G NONE
+an-set -/- 2
+port-enb -/-
+port-loopback 57/- mac-near
+port-loopback 63/- mac-near
+port-loopback 47/- mac-near
+show
+
