@@ -58,7 +58,7 @@ Our artifact is tested on:
    - `make install`
    - `${SDE}` and `${SDE_INSTALL}` are path to the SDE. In our testbed, SDE = `/home/admin/bf-sde-9.7.0`  and SDE_INSTALL = `/home/admin/bf-sde-9.7.0/install`.
    - If done well, you should see the following outputs
-   ```
+```
 root@tofino:/home/tofino/bf-sde-9.7.0# cmake ${SDE}/p4studio -DCMAKE_INSTALL_PREFIX=${SDE_INSTALL} -DCMAKE_MODULE_PATH=${SDE}/cmake -DP4_NAME=orbitcache -DP4_PATH=${SDE}/orbitcache.p4
 -- 
 P4_LANG: p4-16
@@ -477,7 +477,7 @@ Data preparation done
 `PROTOCOL_ID`: The ID of protocols to use. Same as in the server-side one.<br>
 `KEY_DIST`: 0 Uniform 1 zipf-0.9 2 zipf-0.95 3 zipf-0.99.<br>
 `TIME_EXP`: The experiment time. Set this at least more than 5 because there is a warm-up effect at the early phase of the experiment. <br>
-`TARGET_QPS`: The target throughput (=Tx throughput). Goodput(Rx throughput) can be different. 
+`TARGET_QPS`: The target throughput (=Tx throughput). Goodput(Rx throughput) can be different. <br>
 `WRITE_RATIO`: The ratio of write requests.
  
 For example, use the command as follows:<br>
@@ -695,7 +695,7 @@ The preload of 128 cache items are done.
 Please cite this work if you refer to or use any part of this artifact for your research. 
 
 BibTex:
-
+```
 @inproceedings {orbitcache,
 author = {Gyuyeong Kim},
 title = {Pushing the Limits of {In-Network} Caching for {Key-Value} Stores},
@@ -708,3 +708,4 @@ url = {https://www.usenix.org/conference/nsdi25/presentation/kim},
 publisher = {USENIX Association},
 month = apr
 }
+```
