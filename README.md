@@ -70,7 +70,19 @@ This repository contains the following code segments:
    ```bash
    run_switchd.sh -p orbitcache
    ```
-   Expected output includes `bf_switchd: server started - listening on port 9999` and `bfruntime gRPC server started on 0.0.0.0:50052`.
+   Expected output:
+   ```
+   Using SDE /home/tofino/bf-sde-9.7.0
+   Using SDE_INSTALL /home/tofino/bf-sde-9.7.0/install
+   Setting up DMA Memory Pool
+   Using TARGET_CONFIG_FILE /home/tofino/bf-sde-9.7.0/install/share/p4/targets/tofino/orbitcache.conf
+   ...
+   bf_switchd: dev_id 0 initialized
+   bf_switchd: initialized 1 devices
+   ...
+   bf_switchd: server started - listening on port 9999
+   bfruntime gRPC server started on 0.0.0.0:50052
+   ```
 
 3. **Terminal 2:** Configure ports using `run_bfshell.sh`. After starting, type `ucli` and `pm`.
    - Create ports: `port-add #/- 100G NONE` and `port-enb #/-`
@@ -81,7 +93,18 @@ This repository contains the following code segments:
    ```bash
    python3 controller.py
    ```
-   By default, 128 keys are preloaded to the cache lookup table. Expected output ends with `Keys are inserted to the lookup table.`
+   By default, 128 keys are preloaded to the cache lookup table. Expected output:
+   ```
+   Binding with p4_name orbitcache
+   Binding with p4_name orbitcache successful!!
+   ...
+   0 AAAAAAAAAAAAFGP 13833500700839145416 305149963468443528 0
+   1 AAAAAAAAAAAAJdU 9606265380191604036 10868894308282838393 1
+   2 AAAAAAAAAAAAN0Z 13559153852650052292 8982862755689546034 2
+   ...
+   127 AAAAAAAAAAAJCXe 15573036772515772950 14982745974005649426 127
+   128 Keys are inserted to the lookup table.
+   ```
 
 ### Client/Server-side
 
@@ -114,7 +137,17 @@ This repository contains the following code segments:
    ```bash
    LD_PRELOAD=libvma.so VMA_THREAD_MODE=2 ./server.out 3
    ```
-   Expected output includes `OrbitCache is running` and `Data preparation done`.
+   Expected output:
+   ```
+   VMA INFO: VMA_VERSION: 9.8.40-1 Release built on Sep 12 2023 10:31:00
+   ...
+   Server 1 is running
+   OrbitCache is running
+   Tx/Rx Worker 0,Global Partition 0 is running with Socket 19
+   Tx/Rx Worker 1,Global Partition 1 is running with Socket 23
+   ...
+   Data preparation done
+   ```
 
 6. Start the client program on client nodes:
    ```bash
@@ -130,8 +163,29 @@ This repository contains the following code segments:
    ```bash
    LD_PRELOAD=libvma.so VMA_THREAD_MODE=2 ./client.out 3 3 10 1000000 0
    ```
+   Expected output:
+   ```
+   VMA INFO: VMA_VERSION: 9.8.40-1 Release built on Sep 12 2023 10:31:00
+   ...
+   Client 2 is running
+   Collision detection table done
+   Query PMF setup done
+   Tx Worker 0 is running with Socket 19, CPU 0
+   Rx Worker 0 is running with Socket 19, CPU 1
+   1 1000912
+   2 1000055
+   ...
+   Tx Worker 0 done with 10000000 reqs, Tx throughput: 1000440 RPS
+   ```
 
-7. On the first run, server 1 fetches preloaded cached key-value pairs. The actual experiment starts from the second run.
+7. On the first run, server 1 fetches preloaded cached key-value pairs. The actual experiment starts from the second run. The output of server 1 after the first client run:
+   ```
+   0 AAAAAAAAAAAAFGP 13833500700839145416 305149963468443528
+   1 AAAAAAAAAAAAJdU 9606265380191604036 10868894308282838393
+   ...
+   127 AAAAAAAAAAAJCXe 15573036772515772950 14982745974005649426
+   The preload of 128 cache items are done.
+   ```
 
 8. When the experiment finishes, clients report Tx/Rx throughput, experiment time, and other metrics. Request latency (in microseconds) is logged as a text file. The last line of the log contains the total experiment time — exclude it when analyzing latency data. See `client.c` for details on the output format.
 
