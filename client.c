@@ -552,7 +552,6 @@ Because, with the current function, if the last IP is 110, it will output 0, not
   double missrate =  ((double)global_pkt_counter_miss / (double)(global_pkt_counter_cache+global_pkt_counter_miss));
 
 
-     /*
   printf("Total time: %f seconds \n", tot_time);
   printf("Total received pkts: %d \n", global_pkt_counter);
   printf("Packet loss rate: %f \n", lossrate*100);
@@ -563,8 +562,7 @@ Because, with the current function, if the last IP is 110, it will output 0, not
   for(int i=0;i<g_num_srv_workers*NUM_SRV;i++){
     throughput_par = global_par_counter[i] / tot_time;
     printf("Rx Throughput (Partition%d): %d RPS \n", i,(int) throughput_par);
-  } 
-   */
+  }
    
 
   struct counter_t counters[g_num_srv_workers * NUM_SRV];
