@@ -34,7 +34,7 @@ fetching_cnt = 0
 
 NUM_SRV = 4 # Number of connected storage servers
 
-NUM_SRV_CTRL = 15 # Total number of nodes (including switch control plane). This is for the whole cluster.
+NUM_SRV_CTRL = 18 # Total nodes (cluster updated 2026-04-14 to match netcache controller.py: node1-8, 21-23, 24-26, 31-33, plus tofino CP 111).
 REPORT_PORT = 4321
 CPU_DEVPORT = 64
 WEIGHT_FOR_CACHED_KEY = 1
@@ -441,80 +441,75 @@ try:
 	target = gc.Target(device_id, pipe_id)
 	client.bind_pipeline_config("orbitcache")
 
+	# Cluster info synced from netcache controller.py (Apr 2026).
+	# 18 hosts: node1-8 (101-108), node21-23 (121-123), node24-26 (124-126),
+	# node31-33 (131-133), tofino CP (111).
 	ip_list = [
 	    0x0A000165, # 10.0.1.101
 	    0x0A000166, # 10.0.1.102
 	    0x0A000167, # 10.0.1.103
 	    0x0A000168, # 10.0.1.104
-		0x0A000169, # 10.0.1.105
-		0x0A00016A, # 10.0.1.106
-		0x0A00016B, # 10.0.1.107
-		0x0A00016C, # 10.0.1.108
-		0x0A000179, # 10.0.1.121
-        0x0A00017A, # 10.0.1.122
-        0x0A00017B, # 10.0.1.123
-        0x0A000183, # 10.0.1.131
-        0x0A000184, # 10.0.1.132
-        0x0A000185, # 10.0.1.133
-		#0x0A00016D, # 10.0.1.109
-        #0x0A00016E, # 10.0.1.110
-        0x0A00016F, # 10.0.1.111
-        #0x0A000170, # 10.0.1.112
-		]
+	    0x0A000169, # 10.0.1.105
+	    0x0A00016A, # 10.0.1.106
+	    0x0A00016B, # 10.0.1.107
+	    0x0A00016C, # 10.0.1.108
+	    0x0A000179, # 10.0.1.121
+	    0x0A00017A, # 10.0.1.122
+	    0x0A00017B, # 10.0.1.123
+	    0x0A00017C, # 10.0.1.124
+	    0x0A00017D, # 10.0.1.125
+	    0x0A00017E, # 10.0.1.126
+	    0x0A000183, # 10.0.1.131
+	    0x0A000184, # 10.0.1.132
+	    0x0A000185, # 10.0.1.133
+	    0x0A00016F, # 10.0.1.111  (Tofino CP)
+	]
 	port_list = [
-	    48,
-	    52,
-	    0,
-	    4,
-		16,
-		20,
-		32,
-		36,
-        40, # 10.0.1.121 / 46
-        24, # 10.0.1.122 / 43
-        28, # 10.0.1.123 / 44
-        12, # 10.0.1.131 / 41
-        8, # 10.0.1.132 / 42
-        44, # 10.0.1.133 / 45
-        #388, # 듀얼포트 중 포트 하나나
-		CPU_DEVPORT
+	    48,   # 101
+	    52,   # 102
+	    0,    # 103
+	    4,    # 104
+	    16,   # 105
+	    20,   # 106
+	    32,   # 107
+	    36,   # 108
+	    40,   # 121
+	    24,   # 122
+	    28,   # 123
+	    444,  # 124  (pipe 3, front 3)
+	    440,  # 125  (pipe 3, front 4)
+	    428,  # 126  (pipe 3, front 5)
+	    12,   # 131
+	    8,    # 132
+	    44,   # 133
+	    CPU_DEVPORT, # 111 (Tofino CP)
 	]
 	pipe_list = [
-	    0,
-	    0,
-	    0,
-	    0,
-		0,
-		0,
-		0,
-		0,
-        0,
-        0,
-        0,
-		0,
-        0,
-        0,
-        0
+	    0, 0, 0, 0, 0, 0, 0, 0,        # 101-108
+	    0, 0, 0,                       # 121-123
+	    3, 3, 3,                       # 124-126 (front ports on pipe 3)
+	    0, 0, 0,                       # 131-133
+	    0,                             # 111
 	]
 	mac_list = [
 	    0x0c42a12f12e6, # 101
 	    0x0c42a12f11c6, # 102
 	    0x1070fd1cd4b8, # 103
 	    0x1070fd0dd54c, # 104
-		0x1070fd1ccab8, # 105
-		0x1070fd1ccab4, # 106
-		0x1070fd1cc2c8, # 107
-		0x1070fd1cd40c, # 108
-        0x1070fd1ccabc, # 121
-        0x1070fd31e86c, # 122
-        0x1070fd0dd4bc, # 123
-        0x1070fde55ac0, # 131
-        0x1070fde7bdc4, # 132
-        0x1070fde55b20, # 133
-        #0xb83fd2d9983e, # 109
-        #0xb83fd2d9983f, # 110
-		0x84c78f036d82, # 111
-        #0x84c78f036d83
+	    0x1070fd1ccab8, # 105
+	    0x1070fd1ccab4, # 106
+	    0x1070fd1cc2c8, # 107
+	    0x1070fd1cd40c, # 108
+	    0x1070fd1ccabc, # 121
+	    0x1070fd31e86c, # 122
+	    0x1070fd0dd4bc, # 123
+	    0x1070fdb37aa6, # 124
+	    0x1070fdb34d9e, # 125
+	    0x1070fde55ad8, # 126
+	    0x1070fde55ac0, # 131
+	    0x1070fde7bdc4, # 132
+	    0x1070fde55b20, # 133
+	    0x84c78f036d82, # 111
 	]
 
 	dst_ip = [None] * 4
