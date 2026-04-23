@@ -80,7 +80,7 @@ char* con_addr ="10.0.1.111"; // switch Controller IP address
 #define QUEUE_SIZE 10000000 // Maximum job queue length
 #define BUSY 1
 #define IDLE 0
-#define ORBITCACHE_BASE_PORT 1000
+#define ORBITCACHE_BASE_PORT 3000
 #define NOCACHE_BASE_PORT 2000
 #define NETCACHE_BASE_PORT 1000
 #define REPORT_PORT 4321
