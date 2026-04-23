@@ -33,10 +33,82 @@
 /* Fixed configuration. For artifact evaluation, you do not have to motidfy this */
 #define MAX_QUEUE_SIZE_PER_KEY 8 // Max. queue size per each key in the request table
 #define NUM_BITSHIFT 3 // 2^n where n is NUM_BITSHIFT and 2^n = MAX_QUEUE_SIZE_PER_KEY; Tofino loves bitwise operations.
-#define MAX_CACHE_SIZE 1024 // Numebr of table entry size.
+#define MAX_CACHE_SIZE 8192 // Numebr of table entry size.
 #define TOTAL_QUEUE_SIZE MAX_CACHE_SIZE*MAX_QUEUE_SIZE_PER_KEY
 #define MAX_SRV 64 // To determine the maximum number of entries for forwarding tables like IPv4 and dstMAC.
-#define ORBITCACHE_PORT 1000 // L4 Port number for OrbitCache
+// Per-worker UDP port range for OrbitCache (64 entries).  Multi-worker
+// clients bind each worker to a unique local port in [3000, 3063] so
+// every client→server packet carries srcPort∈[3000,3063] (parse_udp2
+// match), and multi-worker servers bind each worker to 3000+wid so
+// server→client replies carry srcPort∈[3000,3063] too.  The parser
+// sends the packet into the OrbitCache pipeline whenever EITHER
+// dstPort or srcPort falls in that range — this removes the need for
+// SO_REUSEPORT on either end.
+#define ORBITCACHE_PORT      3000
+#define ORBITCACHE_PORT0     3000
+#define ORBITCACHE_PORT1     3001
+#define ORBITCACHE_PORT2     3002
+#define ORBITCACHE_PORT3     3003
+#define ORBITCACHE_PORT4     3004
+#define ORBITCACHE_PORT5     3005
+#define ORBITCACHE_PORT6     3006
+#define ORBITCACHE_PORT7     3007
+#define ORBITCACHE_PORT8     3008
+#define ORBITCACHE_PORT9     3009
+#define ORBITCACHE_PORT10    3010
+#define ORBITCACHE_PORT11    3011
+#define ORBITCACHE_PORT12    3012
+#define ORBITCACHE_PORT13    3013
+#define ORBITCACHE_PORT14    3014
+#define ORBITCACHE_PORT15    3015
+#define ORBITCACHE_PORT16    3016
+#define ORBITCACHE_PORT17    3017
+#define ORBITCACHE_PORT18    3018
+#define ORBITCACHE_PORT19    3019
+#define ORBITCACHE_PORT20    3020
+#define ORBITCACHE_PORT21    3021
+#define ORBITCACHE_PORT22    3022
+#define ORBITCACHE_PORT23    3023
+#define ORBITCACHE_PORT24    3024
+#define ORBITCACHE_PORT25    3025
+#define ORBITCACHE_PORT26    3026
+#define ORBITCACHE_PORT27    3027
+#define ORBITCACHE_PORT28    3028
+#define ORBITCACHE_PORT29    3029
+#define ORBITCACHE_PORT30    3030
+#define ORBITCACHE_PORT31    3031
+#define ORBITCACHE_PORT32    3032
+#define ORBITCACHE_PORT33    3033
+#define ORBITCACHE_PORT34    3034
+#define ORBITCACHE_PORT35    3035
+#define ORBITCACHE_PORT36    3036
+#define ORBITCACHE_PORT37    3037
+#define ORBITCACHE_PORT38    3038
+#define ORBITCACHE_PORT39    3039
+#define ORBITCACHE_PORT40    3040
+#define ORBITCACHE_PORT41    3041
+#define ORBITCACHE_PORT42    3042
+#define ORBITCACHE_PORT43    3043
+#define ORBITCACHE_PORT44    3044
+#define ORBITCACHE_PORT45    3045
+#define ORBITCACHE_PORT46    3046
+#define ORBITCACHE_PORT47    3047
+#define ORBITCACHE_PORT48    3048
+#define ORBITCACHE_PORT49    3049
+#define ORBITCACHE_PORT50    3050
+#define ORBITCACHE_PORT51    3051
+#define ORBITCACHE_PORT52    3052
+#define ORBITCACHE_PORT53    3053
+#define ORBITCACHE_PORT54    3054
+#define ORBITCACHE_PORT55    3055
+#define ORBITCACHE_PORT56    3056
+#define ORBITCACHE_PORT57    3057
+#define ORBITCACHE_PORT58    3058
+#define ORBITCACHE_PORT59    3059
+#define ORBITCACHE_PORT60    3060
+#define ORBITCACHE_PORT61    3061
+#define ORBITCACHE_PORT62    3062
+#define ORBITCACHE_PORT63    3063
 //#define RECIRC_PORT 68 // recirculation port for pipeline 0
 
 /*************************************************************************
@@ -195,16 +267,142 @@ parser SwitchIngressParser(
         pkt.extract(hdr.udp);
         //transition parse_orbitcache;
         transition select(hdr.udp.dstPort){
-        ORBITCACHE_PORT: parse_orbitcache;
-        default: parse_udp2;
+            ORBITCACHE_PORT0:  parse_orbitcache;
+            ORBITCACHE_PORT1:  parse_orbitcache;
+            ORBITCACHE_PORT2:  parse_orbitcache;
+            ORBITCACHE_PORT3:  parse_orbitcache;
+            ORBITCACHE_PORT4:  parse_orbitcache;
+            ORBITCACHE_PORT5:  parse_orbitcache;
+            ORBITCACHE_PORT6:  parse_orbitcache;
+            ORBITCACHE_PORT7:  parse_orbitcache;
+            ORBITCACHE_PORT8:  parse_orbitcache;
+            ORBITCACHE_PORT9:  parse_orbitcache;
+            ORBITCACHE_PORT10: parse_orbitcache;
+            ORBITCACHE_PORT11: parse_orbitcache;
+            ORBITCACHE_PORT12: parse_orbitcache;
+            ORBITCACHE_PORT13: parse_orbitcache;
+            ORBITCACHE_PORT14: parse_orbitcache;
+            ORBITCACHE_PORT15: parse_orbitcache;
+            ORBITCACHE_PORT16: parse_orbitcache;
+            ORBITCACHE_PORT17: parse_orbitcache;
+            ORBITCACHE_PORT18: parse_orbitcache;
+            ORBITCACHE_PORT19: parse_orbitcache;
+            ORBITCACHE_PORT20: parse_orbitcache;
+            ORBITCACHE_PORT21: parse_orbitcache;
+            ORBITCACHE_PORT22: parse_orbitcache;
+            ORBITCACHE_PORT23: parse_orbitcache;
+            ORBITCACHE_PORT24: parse_orbitcache;
+            ORBITCACHE_PORT25: parse_orbitcache;
+            ORBITCACHE_PORT26: parse_orbitcache;
+            ORBITCACHE_PORT27: parse_orbitcache;
+            ORBITCACHE_PORT28: parse_orbitcache;
+            ORBITCACHE_PORT29: parse_orbitcache;
+            ORBITCACHE_PORT30: parse_orbitcache;
+            ORBITCACHE_PORT31: parse_orbitcache;
+            ORBITCACHE_PORT32: parse_orbitcache;
+            ORBITCACHE_PORT33: parse_orbitcache;
+            ORBITCACHE_PORT34: parse_orbitcache;
+            ORBITCACHE_PORT35: parse_orbitcache;
+            ORBITCACHE_PORT36: parse_orbitcache;
+            ORBITCACHE_PORT37: parse_orbitcache;
+            ORBITCACHE_PORT38: parse_orbitcache;
+            ORBITCACHE_PORT39: parse_orbitcache;
+            ORBITCACHE_PORT40: parse_orbitcache;
+            ORBITCACHE_PORT41: parse_orbitcache;
+            ORBITCACHE_PORT42: parse_orbitcache;
+            ORBITCACHE_PORT43: parse_orbitcache;
+            ORBITCACHE_PORT44: parse_orbitcache;
+            ORBITCACHE_PORT45: parse_orbitcache;
+            ORBITCACHE_PORT46: parse_orbitcache;
+            ORBITCACHE_PORT47: parse_orbitcache;
+            ORBITCACHE_PORT48: parse_orbitcache;
+            ORBITCACHE_PORT49: parse_orbitcache;
+            ORBITCACHE_PORT50: parse_orbitcache;
+            ORBITCACHE_PORT51: parse_orbitcache;
+            ORBITCACHE_PORT52: parse_orbitcache;
+            ORBITCACHE_PORT53: parse_orbitcache;
+            ORBITCACHE_PORT54: parse_orbitcache;
+            ORBITCACHE_PORT55: parse_orbitcache;
+            ORBITCACHE_PORT56: parse_orbitcache;
+            ORBITCACHE_PORT57: parse_orbitcache;
+            ORBITCACHE_PORT58: parse_orbitcache;
+            ORBITCACHE_PORT59: parse_orbitcache;
+            ORBITCACHE_PORT60: parse_orbitcache;
+            ORBITCACHE_PORT61: parse_orbitcache;
+            ORBITCACHE_PORT62: parse_orbitcache;
+            ORBITCACHE_PORT63: parse_orbitcache;
+            default: parse_udp2;
         }
     }
 
     state parse_udp2 {
         //transition parse_orbitcache;
         transition select(hdr.udp.srcPort){
-        ORBITCACHE_PORT: parse_orbitcache;
-        default: accept;
+            ORBITCACHE_PORT0:  parse_orbitcache;
+            ORBITCACHE_PORT1:  parse_orbitcache;
+            ORBITCACHE_PORT2:  parse_orbitcache;
+            ORBITCACHE_PORT3:  parse_orbitcache;
+            ORBITCACHE_PORT4:  parse_orbitcache;
+            ORBITCACHE_PORT5:  parse_orbitcache;
+            ORBITCACHE_PORT6:  parse_orbitcache;
+            ORBITCACHE_PORT7:  parse_orbitcache;
+            ORBITCACHE_PORT8:  parse_orbitcache;
+            ORBITCACHE_PORT9:  parse_orbitcache;
+            ORBITCACHE_PORT10: parse_orbitcache;
+            ORBITCACHE_PORT11: parse_orbitcache;
+            ORBITCACHE_PORT12: parse_orbitcache;
+            ORBITCACHE_PORT13: parse_orbitcache;
+            ORBITCACHE_PORT14: parse_orbitcache;
+            ORBITCACHE_PORT15: parse_orbitcache;
+            ORBITCACHE_PORT16: parse_orbitcache;
+            ORBITCACHE_PORT17: parse_orbitcache;
+            ORBITCACHE_PORT18: parse_orbitcache;
+            ORBITCACHE_PORT19: parse_orbitcache;
+            ORBITCACHE_PORT20: parse_orbitcache;
+            ORBITCACHE_PORT21: parse_orbitcache;
+            ORBITCACHE_PORT22: parse_orbitcache;
+            ORBITCACHE_PORT23: parse_orbitcache;
+            ORBITCACHE_PORT24: parse_orbitcache;
+            ORBITCACHE_PORT25: parse_orbitcache;
+            ORBITCACHE_PORT26: parse_orbitcache;
+            ORBITCACHE_PORT27: parse_orbitcache;
+            ORBITCACHE_PORT28: parse_orbitcache;
+            ORBITCACHE_PORT29: parse_orbitcache;
+            ORBITCACHE_PORT30: parse_orbitcache;
+            ORBITCACHE_PORT31: parse_orbitcache;
+            ORBITCACHE_PORT32: parse_orbitcache;
+            ORBITCACHE_PORT33: parse_orbitcache;
+            ORBITCACHE_PORT34: parse_orbitcache;
+            ORBITCACHE_PORT35: parse_orbitcache;
+            ORBITCACHE_PORT36: parse_orbitcache;
+            ORBITCACHE_PORT37: parse_orbitcache;
+            ORBITCACHE_PORT38: parse_orbitcache;
+            ORBITCACHE_PORT39: parse_orbitcache;
+            ORBITCACHE_PORT40: parse_orbitcache;
+            ORBITCACHE_PORT41: parse_orbitcache;
+            ORBITCACHE_PORT42: parse_orbitcache;
+            ORBITCACHE_PORT43: parse_orbitcache;
+            ORBITCACHE_PORT44: parse_orbitcache;
+            ORBITCACHE_PORT45: parse_orbitcache;
+            ORBITCACHE_PORT46: parse_orbitcache;
+            ORBITCACHE_PORT47: parse_orbitcache;
+            ORBITCACHE_PORT48: parse_orbitcache;
+            ORBITCACHE_PORT49: parse_orbitcache;
+            ORBITCACHE_PORT50: parse_orbitcache;
+            ORBITCACHE_PORT51: parse_orbitcache;
+            ORBITCACHE_PORT52: parse_orbitcache;
+            ORBITCACHE_PORT53: parse_orbitcache;
+            ORBITCACHE_PORT54: parse_orbitcache;
+            ORBITCACHE_PORT55: parse_orbitcache;
+            ORBITCACHE_PORT56: parse_orbitcache;
+            ORBITCACHE_PORT57: parse_orbitcache;
+            ORBITCACHE_PORT58: parse_orbitcache;
+            ORBITCACHE_PORT59: parse_orbitcache;
+            ORBITCACHE_PORT60: parse_orbitcache;
+            ORBITCACHE_PORT61: parse_orbitcache;
+            ORBITCACHE_PORT62: parse_orbitcache;
+            ORBITCACHE_PORT63: parse_orbitcache;
+            default: accept;
         }
     }
         state parse_orbitcache {
