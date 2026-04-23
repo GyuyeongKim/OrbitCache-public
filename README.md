@@ -129,7 +129,7 @@ This repository contains the following code segments:
 
 5. Start the server program on server nodes:
    ```bash
-   LD_PRELOAD=libvma.so VMA_THREAD_MODE=2 ./server.out NUM_WORKERS PROTOCOL_ID
+   LD_PRELOAD=libvma.so VMA_THREAD_MODE=2 ./server.out PROTOCOL_ID
    ```
    - `PROTOCOL_ID`: `0` = NoCache, `2` = NetCache, `3` = OrbitCache
 
@@ -139,7 +139,7 @@ This repository contains the following code segments:
    ```
    Expected output:
    ```
-   VMA INFO: VMA_VERSION: 9.8.40-1 Release built on Sep 12 2023 10:31:00
+   VMA INFO: VMA_VERSION: 9.8.84-1 Release built on Jan 29 2026 23:20:06
    ...
    Server 1 is running
    OrbitCache is running
@@ -149,7 +149,20 @@ This repository contains the following code segments:
    Data preparation done
    ```
 
-6. Start the client program on client nodes:
+6. Seed the switch cache by running the standalone preload tool **once**, after the switch controller has installed its routing and cache-lookup entries but **before starting any clients**:
+   ```bash
+   ./preload.out
+   # Or: ./preload.out N
+   # Or: ./preload.out N target_ip
+   ```
+   With no arguments, it installs `NUM_HOTKEY` items (128 by default) sized according to `LRATIO` in `header.h`, sending to `dst_ip[0]`. Expected output:
+   ```
+   [preload] installing 128 items (small=64B, large=1024B, LRATIO=18%) via 10.0.1.108:3001
+   [preload] done: 128 items (small=104, large=24)
+   ```
+   The preload binary is one-shot and exits immediately, so it does not need its own terminal; any node on the 100G data network can run it (e.g., one of the server or client nodes, from a spare shell or in-line before launching the long-running binary). Re-run `preload.out` whenever you change `NUM_HOTKEY` or `LRATIO`, or whenever the controller reinitialises cache state.
+
+7. Start the client program on client nodes:
    ```bash
    LD_PRELOAD=libvma.so VMA_THREAD_MODE=2 ./client.out PROTOCOL_ID KEY_DIST TIME_EXP TARGET_QPS WRITE_RATIO
    ```
@@ -165,7 +178,7 @@ This repository contains the following code segments:
    ```
    Expected output:
    ```
-   VMA INFO: VMA_VERSION: 9.8.40-1 Release built on Sep 12 2023 10:31:00
+   VMA INFO: VMA_VERSION: 9.8.84-1 Release built on Jan 29 2026 23:20:06
    ...
    Client 2 is running
    Collision detection table done
@@ -177,19 +190,6 @@ This repository contains the following code segments:
    ...
    Tx Worker 0 done with 10000000 reqs, Tx throughput: 1000440 RPS
    ```
-
-7. Before starting clients, seed the switch cache by running the standalone preload tool once from any node on the data network:
-   ```bash
-   ./preload.out
-   # Or: ./preload.out N
-   # Or: ./preload.out N target_ip
-   ```
-   With no arguments, it installs `NUM_HOTKEY` items (128 by default) sized according to `LRATIO` in `header.h`, sending to `dst_ip[0]`. Expected output:
-   ```
-   [preload] installing 128 items (small=64B, large=1024B, LRATIO=18%) via 10.0.1.108:3001
-   [preload] done: 128 items (small=103, large=25)
-   ```
-   Re-run `preload.out` whenever you change `NUM_HOTKEY` or `LRATIO`, or whenever the controller reinitialises cache state.
 
 8. When the experiment finishes, clients report Tx/Rx throughput, experiment time, and other metrics. Request latency (in microseconds) is logged as a text file. The last line of the log contains the total experiment time — exclude it when analyzing latency data. See `client.c` for details on the output format.
 
