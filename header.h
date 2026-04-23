@@ -101,7 +101,11 @@ int global_pkt_counter = 0;
 int global_pkt_counter_cache = 0;
 int global_pkt_counter_miss = 0;
 int global_pkt_counter_server = 0;
-int global_par_counter[MAX_SRV*NUM_SRV_WORKERS] ={0,};
+/* Fixed-size upper bound so `global_par_counter` stays valid when
+ * NUM_SRV_WORKERS is overridden at runtime via the server/client CLI.
+ * Active entries use a stride of g_num_srv_workers (<= MAX_WORKERS). */
+int global_par_counter[MAX_SRV*MAX_WORKERS] = {0,};
+int g_num_srv_workers = NUM_SRV_WORKERS;
 
 pthread_mutex_t lock_txid = PTHREAD_MUTEX_INITIALIZER;
 int tx_id = 0;
