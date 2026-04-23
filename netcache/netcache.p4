@@ -22,22 +22,76 @@
 #define EMPTY 0
 #define NONE 0
 #define CONTROLLER_PORT 64
-#define NETCACHE_PORT0 1000
-#define NETCACHE_PORT1 1001
-#define NETCACHE_PORT2 1002
-#define NETCACHE_PORT3 1003
-#define NETCACHE_PORT4 1004
-#define NETCACHE_PORT5 1005
-#define NETCACHE_PORT6 1006
-#define NETCACHE_PORT7 1007
-#define NETCACHE_PORT8 1008
-#define NETCACHE_PORT9 1009
+// Per-worker UDP port range for NetCache (64 entries, 1000..1063).
+// Multi-worker clients and servers bind workers to unique ports in
+// this range; the parser matches EITHER dstPort or srcPort in the
+// range to send packets into the NetCache pipeline.  This avoids
+// SO_REUSEPORT on either end and lets us scale the worker count
+// without a phantom-amplification race on response delivery.
+#define NETCACHE_PORT0  1000
+#define NETCACHE_PORT1  1001
+#define NETCACHE_PORT2  1002
+#define NETCACHE_PORT3  1003
+#define NETCACHE_PORT4  1004
+#define NETCACHE_PORT5  1005
+#define NETCACHE_PORT6  1006
+#define NETCACHE_PORT7  1007
+#define NETCACHE_PORT8  1008
+#define NETCACHE_PORT9  1009
 #define NETCACHE_PORT10 1010
 #define NETCACHE_PORT11 1011
 #define NETCACHE_PORT12 1012
 #define NETCACHE_PORT13 1013
 #define NETCACHE_PORT14 1014
 #define NETCACHE_PORT15 1015
+#define NETCACHE_PORT16 1016
+#define NETCACHE_PORT17 1017
+#define NETCACHE_PORT18 1018
+#define NETCACHE_PORT19 1019
+#define NETCACHE_PORT20 1020
+#define NETCACHE_PORT21 1021
+#define NETCACHE_PORT22 1022
+#define NETCACHE_PORT23 1023
+#define NETCACHE_PORT24 1024
+#define NETCACHE_PORT25 1025
+#define NETCACHE_PORT26 1026
+#define NETCACHE_PORT27 1027
+#define NETCACHE_PORT28 1028
+#define NETCACHE_PORT29 1029
+#define NETCACHE_PORT30 1030
+#define NETCACHE_PORT31 1031
+#define NETCACHE_PORT32 1032
+#define NETCACHE_PORT33 1033
+#define NETCACHE_PORT34 1034
+#define NETCACHE_PORT35 1035
+#define NETCACHE_PORT36 1036
+#define NETCACHE_PORT37 1037
+#define NETCACHE_PORT38 1038
+#define NETCACHE_PORT39 1039
+#define NETCACHE_PORT40 1040
+#define NETCACHE_PORT41 1041
+#define NETCACHE_PORT42 1042
+#define NETCACHE_PORT43 1043
+#define NETCACHE_PORT44 1044
+#define NETCACHE_PORT45 1045
+#define NETCACHE_PORT46 1046
+#define NETCACHE_PORT47 1047
+#define NETCACHE_PORT48 1048
+#define NETCACHE_PORT49 1049
+#define NETCACHE_PORT50 1050
+#define NETCACHE_PORT51 1051
+#define NETCACHE_PORT52 1052
+#define NETCACHE_PORT53 1053
+#define NETCACHE_PORT54 1054
+#define NETCACHE_PORT55 1055
+#define NETCACHE_PORT56 1056
+#define NETCACHE_PORT57 1057
+#define NETCACHE_PORT58 1058
+#define NETCACHE_PORT59 1059
+#define NETCACHE_PORT60 1060
+#define NETCACHE_PORT61 1061
+#define NETCACHE_PORT62 1062
+#define NETCACHE_PORT63 1063
 
 /*************************************************************************
 *********************** H E A D E R S  ***********************************
@@ -221,22 +275,70 @@ parser SwitchIngressParser(
         pkt.extract(hdr.udp);
         //transition parse_netcache;
         transition select(hdr.udp.dstPort){
-            NETCACHE_PORT0: parse_netcache;
-            NETCACHE_PORT1: parse_netcache;
-            NETCACHE_PORT2: parse_netcache;
-            NETCACHE_PORT3: parse_netcache;
-            NETCACHE_PORT4: parse_netcache;
-            NETCACHE_PORT5: parse_netcache;
-            NETCACHE_PORT6: parse_netcache;
-            NETCACHE_PORT7: parse_netcache;
-            NETCACHE_PORT8: parse_netcache;
-            NETCACHE_PORT9: parse_netcache;
+            NETCACHE_PORT0:  parse_netcache;
+            NETCACHE_PORT1:  parse_netcache;
+            NETCACHE_PORT2:  parse_netcache;
+            NETCACHE_PORT3:  parse_netcache;
+            NETCACHE_PORT4:  parse_netcache;
+            NETCACHE_PORT5:  parse_netcache;
+            NETCACHE_PORT6:  parse_netcache;
+            NETCACHE_PORT7:  parse_netcache;
+            NETCACHE_PORT8:  parse_netcache;
+            NETCACHE_PORT9:  parse_netcache;
             NETCACHE_PORT10: parse_netcache;
             NETCACHE_PORT11: parse_netcache;
             NETCACHE_PORT12: parse_netcache;
             NETCACHE_PORT13: parse_netcache;
             NETCACHE_PORT14: parse_netcache;
             NETCACHE_PORT15: parse_netcache;
+            NETCACHE_PORT16: parse_netcache;
+            NETCACHE_PORT17: parse_netcache;
+            NETCACHE_PORT18: parse_netcache;
+            NETCACHE_PORT19: parse_netcache;
+            NETCACHE_PORT20: parse_netcache;
+            NETCACHE_PORT21: parse_netcache;
+            NETCACHE_PORT22: parse_netcache;
+            NETCACHE_PORT23: parse_netcache;
+            NETCACHE_PORT24: parse_netcache;
+            NETCACHE_PORT25: parse_netcache;
+            NETCACHE_PORT26: parse_netcache;
+            NETCACHE_PORT27: parse_netcache;
+            NETCACHE_PORT28: parse_netcache;
+            NETCACHE_PORT29: parse_netcache;
+            NETCACHE_PORT30: parse_netcache;
+            NETCACHE_PORT31: parse_netcache;
+            NETCACHE_PORT32: parse_netcache;
+            NETCACHE_PORT33: parse_netcache;
+            NETCACHE_PORT34: parse_netcache;
+            NETCACHE_PORT35: parse_netcache;
+            NETCACHE_PORT36: parse_netcache;
+            NETCACHE_PORT37: parse_netcache;
+            NETCACHE_PORT38: parse_netcache;
+            NETCACHE_PORT39: parse_netcache;
+            NETCACHE_PORT40: parse_netcache;
+            NETCACHE_PORT41: parse_netcache;
+            NETCACHE_PORT42: parse_netcache;
+            NETCACHE_PORT43: parse_netcache;
+            NETCACHE_PORT44: parse_netcache;
+            NETCACHE_PORT45: parse_netcache;
+            NETCACHE_PORT46: parse_netcache;
+            NETCACHE_PORT47: parse_netcache;
+            NETCACHE_PORT48: parse_netcache;
+            NETCACHE_PORT49: parse_netcache;
+            NETCACHE_PORT50: parse_netcache;
+            NETCACHE_PORT51: parse_netcache;
+            NETCACHE_PORT52: parse_netcache;
+            NETCACHE_PORT53: parse_netcache;
+            NETCACHE_PORT54: parse_netcache;
+            NETCACHE_PORT55: parse_netcache;
+            NETCACHE_PORT56: parse_netcache;
+            NETCACHE_PORT57: parse_netcache;
+            NETCACHE_PORT58: parse_netcache;
+            NETCACHE_PORT59: parse_netcache;
+            NETCACHE_PORT60: parse_netcache;
+            NETCACHE_PORT61: parse_netcache;
+            NETCACHE_PORT62: parse_netcache;
+            NETCACHE_PORT63: parse_netcache;
             default: parse_udp2;
         }
     }
@@ -244,22 +346,70 @@ parser SwitchIngressParser(
     state parse_udp2 {
         //transition parse_netcache;
         transition select(hdr.udp.srcPort){
-            NETCACHE_PORT0: parse_netcache;
-            NETCACHE_PORT1: parse_netcache;
-            NETCACHE_PORT2: parse_netcache;
-            NETCACHE_PORT3: parse_netcache;
-            NETCACHE_PORT4: parse_netcache;
-            NETCACHE_PORT5: parse_netcache;
-            NETCACHE_PORT6: parse_netcache;
-            NETCACHE_PORT7: parse_netcache;
-            NETCACHE_PORT8: parse_netcache;
-            NETCACHE_PORT9: parse_netcache;
+            NETCACHE_PORT0:  parse_netcache;
+            NETCACHE_PORT1:  parse_netcache;
+            NETCACHE_PORT2:  parse_netcache;
+            NETCACHE_PORT3:  parse_netcache;
+            NETCACHE_PORT4:  parse_netcache;
+            NETCACHE_PORT5:  parse_netcache;
+            NETCACHE_PORT6:  parse_netcache;
+            NETCACHE_PORT7:  parse_netcache;
+            NETCACHE_PORT8:  parse_netcache;
+            NETCACHE_PORT9:  parse_netcache;
             NETCACHE_PORT10: parse_netcache;
             NETCACHE_PORT11: parse_netcache;
             NETCACHE_PORT12: parse_netcache;
             NETCACHE_PORT13: parse_netcache;
             NETCACHE_PORT14: parse_netcache;
             NETCACHE_PORT15: parse_netcache;
+            NETCACHE_PORT16: parse_netcache;
+            NETCACHE_PORT17: parse_netcache;
+            NETCACHE_PORT18: parse_netcache;
+            NETCACHE_PORT19: parse_netcache;
+            NETCACHE_PORT20: parse_netcache;
+            NETCACHE_PORT21: parse_netcache;
+            NETCACHE_PORT22: parse_netcache;
+            NETCACHE_PORT23: parse_netcache;
+            NETCACHE_PORT24: parse_netcache;
+            NETCACHE_PORT25: parse_netcache;
+            NETCACHE_PORT26: parse_netcache;
+            NETCACHE_PORT27: parse_netcache;
+            NETCACHE_PORT28: parse_netcache;
+            NETCACHE_PORT29: parse_netcache;
+            NETCACHE_PORT30: parse_netcache;
+            NETCACHE_PORT31: parse_netcache;
+            NETCACHE_PORT32: parse_netcache;
+            NETCACHE_PORT33: parse_netcache;
+            NETCACHE_PORT34: parse_netcache;
+            NETCACHE_PORT35: parse_netcache;
+            NETCACHE_PORT36: parse_netcache;
+            NETCACHE_PORT37: parse_netcache;
+            NETCACHE_PORT38: parse_netcache;
+            NETCACHE_PORT39: parse_netcache;
+            NETCACHE_PORT40: parse_netcache;
+            NETCACHE_PORT41: parse_netcache;
+            NETCACHE_PORT42: parse_netcache;
+            NETCACHE_PORT43: parse_netcache;
+            NETCACHE_PORT44: parse_netcache;
+            NETCACHE_PORT45: parse_netcache;
+            NETCACHE_PORT46: parse_netcache;
+            NETCACHE_PORT47: parse_netcache;
+            NETCACHE_PORT48: parse_netcache;
+            NETCACHE_PORT49: parse_netcache;
+            NETCACHE_PORT50: parse_netcache;
+            NETCACHE_PORT51: parse_netcache;
+            NETCACHE_PORT52: parse_netcache;
+            NETCACHE_PORT53: parse_netcache;
+            NETCACHE_PORT54: parse_netcache;
+            NETCACHE_PORT55: parse_netcache;
+            NETCACHE_PORT56: parse_netcache;
+            NETCACHE_PORT57: parse_netcache;
+            NETCACHE_PORT58: parse_netcache;
+            NETCACHE_PORT59: parse_netcache;
+            NETCACHE_PORT60: parse_netcache;
+            NETCACHE_PORT61: parse_netcache;
+            NETCACHE_PORT62: parse_netcache;
+            NETCACHE_PORT63: parse_netcache;
             default: accept;
         }
     }
@@ -301,7 +451,9 @@ control SwitchIngress(
             drop;
             NoAction;
         }
-        size = 16;
+        size = MAX_SRV;  // was 16 — bumped to match orbitcache.p4 and
+                         // cover 10 client + 4 backend + cache-node +
+                         // control-plane addrs in the 10.0.1.0/24 cluster.
        default_action = drop();
     }
 
