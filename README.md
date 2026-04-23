@@ -23,10 +23,10 @@ This repository contains the following code segments:
 ## Software Dependencies
 
 **Clients and servers:**
-- Ubuntu 24.04.2 LTS with Linux kernel 6.8
-- Mellanox OFED NIC drivers 25.01-0.6.0
+- Ubuntu 24.04.3 LTS with Linux kernel 6.8, 6.14, or 6.17
+- Mellanox OFED NIC drivers 25.01-0.6.0 or 26.01-1.0.0
 - gcc 13.3.0
-- VMA libvma 9.8.40-1
+- VMA libvma 9.8.40-1 or 9.8.84-1
 - [TommyDS](https://www.tommyds.it/)
 
 **Switch:**
