@@ -105,8 +105,7 @@ void *worker_t(void *arg){
   size_t value_size = 0;
   if (PROTOCOL_ID == NOCACHE){
     struct nocache_hdr RecvBuffer;
-    int temp_cache = 0;
-    uint64_t start_time = get_cur_ns(); 
+    uint64_t start_time = get_cur_ns();
     uint32_t rx_counter = 0;
     while(1){
 
@@ -155,7 +154,6 @@ void *worker_t(void *arg){
   /* NETCACHE */
   else if (PROTOCOL_ID == NETCACHE){
     struct netcache_hdr RecvBuffer;
-    int temp_cache = 0;
     uint64_t start_time = get_cur_ns(); 
     uint32_t rx_counter = 0;
     while(1){
