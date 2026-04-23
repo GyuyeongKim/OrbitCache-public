@@ -18,7 +18,7 @@ void *worker_t(void *arg){
 	pthread_mutex_lock(&lock_tid);
 	int i = t_id++;
   int thread_id = i;
-	int global_partition_id = (SERVER_ID-1)*NUM_WORKERS+t_id-1;
+	int global_partition_id = (SERVER_ID-1)*g_num_srv_workers+t_id-1;
   int partition_id = i;
 
 
@@ -74,7 +74,7 @@ void *worker_t(void *arg){
       dstAddr = fnv1_16_str(keyStr)%NUM_SRV;
       if(strcmp(dst_ip[dstAddr],ipaddr) == 0 ){
         hkey_hi = hash64_str(keyStr);
-        par_id = (hkey_hi + 0x12345678)%NUM_SRV_WORKERS;
+        par_id = (hkey_hi + 0x12345678)%g_num_srv_workers;
         if( par_id == partition_id) { 
             
        
@@ -355,12 +355,24 @@ void *worker_t(void *arg){
 }
 
 int main(int argc, char *argv[]) {
-	if ( argc != 2){
-	 printf("Input : %s  PROTOCOL_ID\n", argv[0]);
+	if (argc < 2 || argc > 3){
+	 printf("Usage: %s <PROTOCOL_ID> [<NUM_WORKERS>]\n"
+	        "  PROTOCOL_ID: 0=NoCache, 2=NetCache, 3=OrbitCache\n"
+	        "  NUM_WORKERS: emulated server workers, 1..%d (default %d)\n",
+	        argv[0], MAX_WORKERS, NUM_SRV_WORKERS);
 	 exit(1);
 	}
 
 	int PROTOCOL_ID = atoi(argv[1]);
+	if (argc == 3) {
+	 int nw = atoi(argv[2]);
+	 if (nw < 1 || nw > MAX_WORKERS) {
+	  printf("NUM_WORKERS must be in [1, %d], got %d\n", MAX_WORKERS, nw);
+	  exit(1);
+	 }
+	 g_num_srv_workers = nw;
+	}
+	printf("Server will spawn %d emulated worker(s)\n", g_num_srv_workers);
   int DIST = 0;
 	
 	int SERVER_ID = get_server_id(interface)  - NUM_CLI;
@@ -393,12 +405,12 @@ int main(int argc, char *argv[]) {
 	pthread_t dispatcher,worker[MAX_WORKERS]; 
  
   pthread_mutex_lock(&lock_create);
-	for(int i=0;i<NUM_WORKERS;i++){
+	for(int i=0;i<g_num_srv_workers;i++){
     pthread_create(&worker[i],NULL, worker_t ,(void *)&args); // Worker는 자체 socket을 쓰므로 인자가 필요없다.
 	}
   pthread_mutex_unlock(&lock_create);
 
-	for(int i=0;i<NUM_WORKERS;i++) pthread_join(worker[i], NULL);
+	for(int i=0;i<g_num_srv_workers;i++) pthread_join(worker[i], NULL);
    
 
 	return 0;

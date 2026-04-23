@@ -79,7 +79,7 @@ void *tx_t(void *arg){
 
         uint64_t hkey_temp = hash64_str(SendBuffer.org_key); 
         dstAddr = fnv1_16_str(SendBuffer.org_key)%NUM_SRV;
-        SendBuffer.par_id =  (hkey_temp + 0x12345678)% NUM_SRV_WORKERS;
+        SendBuffer.par_id =  (hkey_temp + 0x12345678)% g_num_srv_workers;
 
         srv_addr.sin_port = htons(NOCACHE_BASE_PORT+SendBuffer.par_id);
         inet_pton(AF_INET, dst_ip[dstAddr], &srv_addr.sin_addr);
@@ -116,7 +116,7 @@ void *tx_t(void *arg){
 
       
         dstAddr = fnv1_16_str(SendBuffer.org_key)%NUM_SRV;
-        SendBuffer.par_id =  (SendBuffer.hkey_hi + 0x12345678)% NUM_SRV_WORKERS;
+        SendBuffer.par_id =  (SendBuffer.hkey_hi + 0x12345678)% g_num_srv_workers;
 
  
         SendBuffer.hkey_hi = htonll(SendBuffer.hkey_hi); 
@@ -172,7 +172,7 @@ void *tx_t(void *arg){
       SendBuffer.hkey_hi = hash64_str(SendBuffer.org_key); 
       SendBuffer.hkey_lo = hash64_str2(SendBuffer.org_key); 
       dstAddr = fnv1_16_str(SendBuffer.org_key)%NUM_SRV;
-      SendBuffer.par_id =  (SendBuffer.hkey_hi + 0x12345678)% NUM_SRV_WORKERS;
+      SendBuffer.par_id =  (SendBuffer.hkey_hi + 0x12345678)% g_num_srv_workers;
       SendBuffer.hkey_hi = htonll(SendBuffer.hkey_hi);
       SendBuffer.hkey_lo = htonll(SendBuffer.hkey_lo); 
       srv_addr.sin_port = htons(ORBITCACHE_BASE_PORT+SendBuffer.par_id);
@@ -256,19 +256,19 @@ void *rx_t(void *arg){
 
 
 	char log_file_name[50];
-	sprintf(log_file_name,"./log-%lu-%lu-%d-%d-%d-%lu-%lu-%lu-%d.txt",PROTOCOL_ID,SERVER_ID,i,NUM_SRV,NUM_SRV_WORKERS,DIST,TIME_EXP,TARGET_QPS,NUM_HOTKEY);  // log-ServerID-ThreadID-Protocol-REQUESTS-QPS
+	sprintf(log_file_name,"./log-%lu-%lu-%d-%d-%d-%lu-%lu-%lu-%d.txt",PROTOCOL_ID,SERVER_ID,i,NUM_SRV,g_num_srv_workers,DIST,TIME_EXP,TARGET_QPS,NUM_HOTKEY);  // log-ServerID-ThreadID-Protocol-REQUESTS-QPS
 	FILE* fd;
 	if ((fd = fopen(log_file_name, "w")) == NULL) {
 		exit(1);
 	}
 
-	sprintf(log_file_name,"./log-%lu-%lu-%d-%d-%d-%lu-%lu-%lu-%d-cache.txt",PROTOCOL_ID,SERVER_ID,i,NUM_SRV,NUM_SRV_WORKERS,DIST,TIME_EXP,TARGET_QPS,NUM_HOTKEY);  // log-ServerID-ThreadID-Protocol-REQUESTS-QPS
+	sprintf(log_file_name,"./log-%lu-%lu-%d-%d-%d-%lu-%lu-%lu-%d-cache.txt",PROTOCOL_ID,SERVER_ID,i,NUM_SRV,g_num_srv_workers,DIST,TIME_EXP,TARGET_QPS,NUM_HOTKEY);  // log-ServerID-ThreadID-Protocol-REQUESTS-QPS
 	FILE* fd_cache;
 	if ((fd_cache = fopen(log_file_name, "w")) == NULL) {
 		exit(1);
 	}
 
-	sprintf(log_file_name,"./log-%lu-%lu-%d-%d-%d-%lu-%lu-%lu-%d-server.txt",PROTOCOL_ID,SERVER_ID,i,NUM_SRV,NUM_SRV_WORKERS,DIST,TIME_EXP,TARGET_QPS,NUM_HOTKEY);  // log-ServerID-ThreadID-Protocol-REQUESTS-QPS
+	sprintf(log_file_name,"./log-%lu-%lu-%d-%d-%d-%lu-%lu-%lu-%d-server.txt",PROTOCOL_ID,SERVER_ID,i,NUM_SRV,g_num_srv_workers,DIST,TIME_EXP,TARGET_QPS,NUM_HOTKEY);  // log-ServerID-ThreadID-Protocol-REQUESTS-QPS
 	FILE* fd_server;
 	if ((fd_server = fopen(log_file_name, "w")) == NULL) {
 		exit(1);
@@ -304,7 +304,7 @@ void *rx_t(void *arg){
             //fprintf(fd_server,"%u %u\n",get_cur_us() - RecvBuffer.latency, RecvBuffer.par_id);
             fprintf(fd_server,"%u\n",get_cur_us() - RecvBuffer.latency);
             local_pkt_counter_server[i]++; 
-            global_par_counter[NUM_SRV_WORKERS*(fnv1_16_str(RecvBuffer.org_key)%NUM_SRV)+RecvBuffer.par_id]++;
+            global_par_counter[g_num_srv_workers*(fnv1_16_str(RecvBuffer.org_key)%NUM_SRV)+RecvBuffer.par_id]++;
 
             local_pkt_counter[i]++; 
             //rx_counter++;
@@ -315,7 +315,7 @@ void *rx_t(void *arg){
             //fprintf(fd_server,"%u %u\n",get_cur_us() - RecvBuffer.latency, RecvBuffer.par_id);
             //fprintf(fd_server,"%u\n",get_cur_us() - RecvBuffer.latency);
             local_pkt_counter_server[i]++; 
-            global_par_counter[NUM_SRV_WORKERS*(fnv1_16_str(RecvBuffer.org_key)%NUM_SRV)+RecvBuffer.par_id]++;
+            global_par_counter[g_num_srv_workers*(fnv1_16_str(RecvBuffer.org_key)%NUM_SRV)+RecvBuffer.par_id]++;
             local_pkt_counter[i]++; 
         }
         rx_counter++;
@@ -339,7 +339,7 @@ void *rx_t(void *arg){
             //fprintf(fd_server,"%u %u %u\n",get_cur_us() - RecvBuffer.latency, RecvBuffer.par_id,RecvBuffer.cnt);
             fprintf(fd_server,"%u\n",get_cur_us() - RecvBuffer.latency);
             local_pkt_counter_server[i]++;
-            global_par_counter[NUM_SRV_WORKERS*(fnv1_16_str(RecvBuffer.org_key)%NUM_SRV)+RecvBuffer.par_id]++;
+            global_par_counter[g_num_srv_workers*(fnv1_16_str(RecvBuffer.org_key)%NUM_SRV)+RecvBuffer.par_id]++;
           }
             local_pkt_counter[i]++; 
             //rx_counter++;
@@ -374,7 +374,7 @@ void *rx_t(void *arg){
                   SendBuffer.hkey_hi = hash64_str(SendBuffer.org_key); 
                   SendBuffer.hkey_lo = hash64_str2(SendBuffer.org_key); 
                   dstAddr = fnv1_16_str(SendBuffer.org_key)%NUM_SRV;
-                  SendBuffer.par_id =  (SendBuffer.hkey_hi + 0x12345678)% NUM_SRV_WORKERS;
+                  SendBuffer.par_id =  (SendBuffer.hkey_hi + 0x12345678)% g_num_srv_workers;
                   SendBuffer.hkey_hi = htonll(SendBuffer.hkey_hi); 
                   SendBuffer.hkey_lo = htonll(SendBuffer.hkey_lo); 
                   srv_addr.sin_port = htons(ORBITCACHE_BASE_PORT+SendBuffer.par_id);
@@ -389,7 +389,7 @@ void *rx_t(void *arg){
             else{
               fprintf(fd_server,"%u\n",get_cur_us() - RecvBuffer.latency);
               local_pkt_counter_server[i]++;
-              global_par_counter[NUM_SRV_WORKERS*(fnv1_16_str(RecvBuffer.org_key)%NUM_SRV)+RecvBuffer.par_id]++;
+              global_par_counter[g_num_srv_workers*(fnv1_16_str(RecvBuffer.org_key)%NUM_SRV)+RecvBuffer.par_id]++;
               if(RecvBuffer.cached == MISSED) local_pkt_counter_miss[i]++; 
             }
         }
@@ -399,7 +399,7 @@ void *rx_t(void *arg){
             //fprintf(fd_server,"%u %u %u\n",get_cur_us() - RecvBuffer.latency, RecvBuffer.par_id,RecvBuffer.cnt);
             fprintf(fd_server,"%u\n",get_cur_us() - RecvBuffer.latency);
             local_pkt_counter_server[i]++; 
-            global_par_counter[NUM_SRV_WORKERS*(fnv1_16_str(RecvBuffer.org_key)%NUM_SRV)+RecvBuffer.par_id]++;
+            global_par_counter[g_num_srv_workers*(fnv1_16_str(RecvBuffer.org_key)%NUM_SRV)+RecvBuffer.par_id]++;
             //rx_counter++;
             //timer = get_cur_ns(); 
           }
@@ -419,8 +419,11 @@ void *rx_t(void *arg){
 }
 
 int main(int argc, char *argv[]) {
-	if ( argc != 6){
-	 printf("%s Usage: ./client PROTOCOL_ID KEY_DIST TIME_EXP TARGET_QPS WRITE_RATIO\n", argv[0]);
+	if ( argc < 6 || argc > 7){
+	 printf("Usage: %s <PROTOCOL_ID> <KEY_DIST> <TIME_EXP> <TARGET_QPS> <WRITE_RATIO> [<NUM_SRV_WORKERS>]\n"
+	        "  NUM_SRV_WORKERS: emulated workers per server, 1..%d (default %d).\n"
+	        "                   Must match the value passed to server.out.\n",
+	        argv[0], MAX_WORKERS, NUM_SRV_WORKERS);
 	 exit(1);
 	}
 
@@ -431,8 +434,17 @@ int main(int argc, char *argv[]) {
 	int PROTOCOL_ID = atoi(argv[1]);
 	int DIST = atoi(argv[2]);
   int TIME_EXP = atoi(argv[3]);
-  uint64_t TARGET_QPS = atoi(argv[4]); 
+  uint64_t TARGET_QPS = atoi(argv[4]);
   int WRATIO = atoi(argv[5]);
+  if (argc == 7) {
+    int nw = atoi(argv[6]);
+    if (nw < 1 || nw > MAX_WORKERS) {
+      printf("NUM_SRV_WORKERS must be in [1, %d], got %d\n", MAX_WORKERS, nw);
+      exit(1);
+    }
+    g_num_srv_workers = nw;
+  }
+  printf("Client using %d emulated worker(s) per server\n", g_num_srv_workers);
   int NUM_REQUESTS = TARGET_QPS*TIME_EXP;
   if(DIST > 3 || DIST < 0){
     printf("Distribution cannot exceed 3. 0: uniform, 1: 0.9, 2: 0.95, 3: 0.99\n");
@@ -548,21 +560,21 @@ Because, with the current function, if the last IP is 110, it will output 0, not
 	printf("Rx Throughput (Cache): %d RPS \n", (int)throughput_cache);
 	printf("Rx Throughput (Server): %d RPS \n", (int)throughput_server);
   double throughput_par=0;
-  for(int i=0;i<NUM_SRV_WORKERS*NUM_SRV;i++){
+  for(int i=0;i<g_num_srv_workers*NUM_SRV;i++){
     throughput_par = global_par_counter[i] / tot_time;
     printf("Rx Throughput (Partition%d): %d RPS \n", i,(int) throughput_par);
   } 
    */
    
 
-  struct counter_t counters[NUM_SRV_WORKERS * NUM_SRV];
-  for (int i = 0; i < NUM_SRV_WORKERS * NUM_SRV; i++) {
+  struct counter_t counters[g_num_srv_workers * NUM_SRV];
+  for (int i = 0; i < g_num_srv_workers * NUM_SRV; i++) {
       counters[i].index = i;
       counters[i].throughput = global_par_counter[i] / tot_time;
   }
 
  
-  qsort(counters, NUM_SRV_WORKERS * NUM_SRV, sizeof(struct counter_t), compare);
+  qsort(counters, g_num_srv_workers * NUM_SRV, sizeof(struct counter_t), compare);
 
 
   printf("%f\n", tot_time); 
@@ -578,7 +590,7 @@ Because, with the current function, if the last IP is 110, it will output 0, not
   
 
   
-  for (int i = 0; i < NUM_SRV_WORKERS * NUM_SRV; i++) {
+  for (int i = 0; i < g_num_srv_workers * NUM_SRV; i++) {
       printf("%d\n", (int)counters[i].throughput);
   }
  
