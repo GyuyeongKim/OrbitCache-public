@@ -77,9 +77,6 @@ char *dst_ip[MAX_SRV] = {
 char* con_addr ="10.0.1.111"; // switch Controller IP address
 
 /* Static macros. Not need to configure this */
-#define QUEUE_SIZE 10000000 // Maximum job queue length
-#define BUSY 1
-#define IDLE 0
 #define ORBITCACHE_BASE_PORT 3000
 #define NOCACHE_BASE_PORT 2000
 #define NETCACHE_BASE_PORT 1000
@@ -360,75 +357,6 @@ void DummyJob() {
    //printf("%lu \n",get_cur_ns() - ss);
 }
 
-
-struct QueueNode {
-  void* data;
-  size_t dataSize;
-  struct QueueNode* next;
-};
-
-struct Queue {
-  struct QueueNode* head;
-  struct QueueNode* tail;
-  uint32_t size;
-};
-
-void queue_init(struct Queue* q) {
-  q->head = NULL;
-  q->tail = NULL;
-  q->size = 0;
-
-}
-
-uint32_t queue_length(struct Queue* q) {
-  return q->size;
-}
-
-uint32_t queue_is_empty(struct Queue* q) {
-  return q->size == 0;
-}
-
-uint32_t queue_is_full(struct Queue* q) {
-  return q->size == QUEUE_SIZE;
-}
-
-void queue_push(struct Queue* q, void* data, size_t data_size) {
-  if (queue_is_full(q)) return;
-
-
-  struct QueueNode* new_node = (struct QueueNode*)malloc(sizeof(struct QueueNode));
-  new_node->data = malloc(data_size);
-  new_node->dataSize = data_size;
-  memcpy(new_node->data, data, data_size);
-  new_node->next = NULL;
-
-  if (queue_is_empty(q)) {
-    q->head = new_node;
-    q->tail = new_node;
-  }
-	else {
-    q->tail->next = new_node;
-    q->tail = new_node;
-  }
-  q->size++;
-}
-
-int queue_pop(struct Queue* q, void* data) {
-  if (queue_is_empty(q)) return 0;
-
-  struct QueueNode* head = q->head;
-  memcpy(data, head->data, head->dataSize);
-  free(head->data);
-  q->head = head->next;
-  if (q->head == NULL) q->tail = NULL;
-  q->size--;
-  free(head);
-  return 1;
-}
-
-
-struct Queue job_queue[MAX_WORKERS];
-struct Queue cli_queue[MAX_WORKERS];
 
 
 
@@ -783,14 +711,6 @@ void tostring_key(uint64_t number, char* key) {
         key[i] = CHARSET[index];
         transformed_number /= CHARSET_SIZE;
     }
-}
-
-void printBytes(const char* str) {
-    int length = strlen(str) + 1;
-    for (int i = 0; i < length; i++) {
-        printf("%02x ", (unsigned char)str[i]);
-    }
-    printf("\n");
 }
 
 struct counter_t {
