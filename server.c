@@ -247,9 +247,8 @@ void *worker_t(void *arg){
         }
       }
   
-      int temp_cache = 0;
-      uint64_t start_time = get_cur_ns(); 
-      uint64_t start_time_dynamic = get_cur_ns(); 
+      uint64_t start_time = get_cur_ns();
+      uint64_t start_time_dynamic = get_cur_ns();
       uint32_t rx_counter = 0;
       while(1){
 
@@ -338,35 +337,6 @@ void *worker_t(void *arg){
 
           }
           rx_counter++;
-          /* Preload hot items for static workload experiments */
-          if(temp_cache == 0 && SERVER_ID == 1 && thread_id == 0){
-            temp_cache = 1;
-            if(!DYNAMIC){
-              for(uint32_t i=0;i<NUM_HOTKEY;i++){
-                RecvBuffer.op = OP_W_REPLY; 
-                tostring_key(i,RecvBuffer.org_key);
-                RecvBuffer.hkey_hi = htonll(hash64_str(RecvBuffer.org_key)); 
-                RecvBuffer.hkey_lo = htonll(hash64_str2(RecvBuffer.org_key)); 
-                
-                printf("%u %s %lu %lu\n",i,RecvBuffer.org_key,ntohll(RecvBuffer.hkey_hi),ntohll(RecvBuffer.hkey_lo));
-              
-                RecvBuffer.flag = FETCHING;
-                RecvBuffer.cached = 1; 
-
-              
-                if(((double)i/(double)NUM_HOTKEY)*100 >= LRATIO) value_size = SMALL_VALUE;
-                else value_size = LARGE_VALUE;
-                memset(RecvBuffer.value, 0, value_size); 
-                size_t pkt_size = sizeof(RecvBuffer) - MAX_VALUE_SIZE + value_size; 
-               
-                //sleep(0.01);
-                sendto(sock, &RecvBuffer, pkt_size, 0, (struct sockaddr *)&(cli_addr), sizeof(cli_addr));
-              }
-            }
-
-            printf("The preload of %d cache items are done.\n",NUM_HOTKEY);
-          }
-           
           if (DYNAMIC){
               /* Key popurarity update */
               if(RecvBuffer.op != OP_FETCH){

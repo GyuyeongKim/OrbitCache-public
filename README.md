@@ -38,11 +38,11 @@ This repository contains the following code segments:
 
 ### Client/Server-side
 
-1. Place `client.c`, `server.c`, `header.h`, and `Makefile` in the home directory (e.g., `/home/orbitcache`).
+1. Place `client.c`, `server.c`, `preload.c`, `header.h`, and `Makefile` in the home directory (e.g., `/home/orbitcache`).
 2. Place `tommyds` in the home directory as well.
 3. Configure cluster-related details in `header.h`, such as IP and MAC addresses. Each node should have a linearly-increasing IP address (e.g., `10.0.1.101` for node1, `10.0.1.102` for node2). The server program automatically assigns the server ID based on the last digit of the IP address.
    - Carefully check Lines 36–77 in `header.h` and configure them for your cluster.
-4. Compile using `make`.
+4. Compile using `make`. This builds `client.out`, `server.out`, and `preload.out`.
 
 ### Switch-side
 
@@ -178,14 +178,18 @@ This repository contains the following code segments:
    Tx Worker 0 done with 10000000 reqs, Tx throughput: 1000440 RPS
    ```
 
-7. On the first run, server 1 fetches preloaded cached key-value pairs. The actual experiment starts from the second run. The output of server 1 after the first client run:
+7. Before starting clients, seed the switch cache by running the standalone preload tool once from any node on the data network:
+   ```bash
+   ./preload.out
+   # Or: ./preload.out N
+   # Or: ./preload.out N target_ip
    ```
-   0 AAAAAAAAAAAAFGP 13833500700839145416 305149963468443528
-   1 AAAAAAAAAAAAJdU 9606265380191604036 10868894308282838393
-   ...
-   127 AAAAAAAAAAAJCXe 15573036772515772950 14982745974005649426
-   The preload of 128 cache items are done.
+   With no arguments, it installs `NUM_HOTKEY` items (128 by default) sized according to `LRATIO` in `header.h`, sending to `dst_ip[0]`. Expected output:
    ```
+   [preload] installing 128 items (small=64B, large=1024B, LRATIO=18%) via 10.0.1.108:3001
+   [preload] done: 128 items (small=103, large=25)
+   ```
+   Re-run `preload.out` whenever you change `NUM_HOTKEY` or `LRATIO`, or whenever the controller reinitialises cache state.
 
 8. When the experiment finishes, clients report Tx/Rx throughput, experiment time, and other metrics. Request latency (in microseconds) is logged as a text file. The last line of the log contains the total experiment time — exclude it when analyzing latency data. See `client.c` for details on the output format.
 
