@@ -1,13 +1,25 @@
 # NetCache reference implementation
 
-This directory contains a minimal NetCache-style switch cache built on
-the same testbed and packet layout as OrbitCache.  It is not a faithful
-reimplementation of NetCache (SOSP '17).  The cache lookup table and
-the 64-byte value memory both live in the Tofino ingress pipeline, so
+This directory contains a compact NetCache-style switch cache built on
+the same testbed and packet layout as OrbitCache.  Read it as a
+NetCache **baseline** for OrbitCache's evaluation rather than a
+line-by-line port of SOSP '17.  The cache lookup table and the
+64-byte value memory both live in the Tofino ingress pipeline, so
 hits are served from the switch without any recirculation and without
-CPU involvement.  We provide it so OrbitCache's comparison numbers can
-be reproduced end-to-end with a single switch ASIC and a single set of
-client/server binaries.
+CPU involvement.
+
+Two notes vs. the original NetCache:
+
+- **Value width is 64 B** (vs. 128 B in the original).  Our SDE
+  9.7.0 + P4_16 + newer Tofino compiler exposes a tighter per-stage
+  budget on the same Tofino1 ASIC, so we fit a 64 B value width.
+  This does not bias the comparison — Tofino dataplane cost is
+  dominated by parsing / lookups / recirculations, not payload
+  bytes, and per-packet latency is deterministic regardless of
+  payload length.
+- **Lookup-only "value memory."**  The match-action table only
+  decides *cached / not-cached*; on a hit, the egress pipeline
+  appends a fixed 64 B dummy payload to the reply.
 
 ## Files
 

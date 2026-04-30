@@ -17,6 +17,7 @@ reproduce the paper's microbenchmarks.
 ├── header.h         # cluster configuration (IPs, MACs, sizes, ports)
 ├── Makefile         # builds client.out, server.out, preload.out
 ├── tommyds/         # bundled TommyDS hash-table used by the server
+├── scripts/         # static-ARP / sysctl / ulimit helpers (edit per cluster)
 ├── orbitcache/
 │   ├── orbitcache.p4    # OrbitCache P4 data plane
 │   └── controller.py    # OrbitCache switch controller
@@ -25,6 +26,7 @@ reproduce the paper's microbenchmarks.
 
 ## Table of contents
 
+- [Quick start](#quick-start)
 - [Hardware dependencies](#hardware-dependencies)
 - [Software dependencies](#software-dependencies)
 - [Building](#building)
@@ -34,6 +36,19 @@ reproduce the paper's microbenchmarks.
 - [Example result](#example-result)
 - [NetCache reference pipeline](#netcache-reference-pipeline)
 - [Citation](#citation)
+
+## Quick start
+
+For experienced operators who just want the end-to-end flow:
+
+1. **Build.**  Run `make` on every host; compile `orbitcache/orbitcache.p4` against the SDE on the switch.
+2. **Per-node one-time setup.**  Edit and `sudo ./scripts/setup_arp.sh` (static ARP for the 100 G data network), then `sudo ./scripts/host_setup.sh` (sysctl + hugepages).
+3. **Per-shell setup.**  In every terminal that will launch a binary, run `source scripts/set_memlock_unlimited.sh` (must be `source`, not `bash` — see [Host-side setup](#host-side-setup)).
+4. **Switch.**  Start `run_switchd.sh -p orbitcache`, bring up the 100 G ports, then `python3 controller.py`.
+5. **Experiment.**  `./preload.out`, then `./server.out 3` on the server hosts and `./client.out 3 3 10 1000000 0` on the client hosts.
+6. **Sanity-check the result.**  Read `Packet loss rate` from the client output — keep it under 2 % for steady-state numbers (see [Interpret the result](#5-interpret-the-result)).
+
+The rest of this document expands each step.
 
 ## Hardware dependencies
 
@@ -126,25 +141,48 @@ Open three terminals on the switch control plane.
 
 ## Host-side setup
 
-These steps are required once per node, before any experiment.
+These steps are required once per node, before any experiment.  We
+ship a small `scripts/` directory with the three pieces below — the
+files are short, idempotent, and meant to be edited per cluster.
 
-1. **Static ARP.**  The switch does not handle host network setup, so every host that participates on the 100 Gbps data network needs a full ARP table:
+1. **Static ARP.**  The switch does not handle host network setup, so
+   every host that participates on the 100 Gbps data network needs a
+   full ARP table.  Edit the `PEERS` array in
+   [`scripts/setup_arp.sh`](scripts/setup_arp.sh) so it lists every
+   `(data-plane IP, NIC MAC)` pair in your testbed (a few example
+   entries from our cluster are kept as a starting point), then run
+   on every host:
    ```bash
-   # Run on each host, for every peer on the data network:
-   arp -s 10.0.1.101 0c:42:a1:2f:12:e6
-   arp -s 10.0.1.102 0c:42:a1:2f:11:c6
-   # ...
+   sudo ./scripts/setup_arp.sh
+   arp -an   # verify
    ```
-   Verify reachability with `ping` over the 100 Gbps interface before continuing.
+   Confirm reachability with `ping` over the 100 Gbps interface
+   before continuing.
 
-2. **Kernel-bypass tuning** (requires root):
+2. **Kernel-bypass tuning (system-wide).**  Sets `net.core.rmem_*`,
+   `kernel.shmmax`, and the hugepage pool.  These are kernel-level
+   settings and persist for the rest of the boot, so the script only
+   needs to run once per node per boot:
    ```bash
-   sysctl -w net.core.rmem_max=104857600
-   sysctl -w net.core.rmem_default=104857600
-   echo 2000000000 > /proc/sys/kernel/shmmax
-   echo 2048      > /proc/sys/vm/nr_hugepages
-   ulimit -l unlimited
+   sudo ./scripts/host_setup.sh
    ```
+
+3. **Locked-memory limit (per-shell).**  VMA registers huge pages
+   with the NIC and needs `RLIMIT_MEMLOCK` lifted; the default 64 KiB
+   cap will make every binary fail at startup.  Run in *every*
+   terminal that will launch `client.out` / `server.out` /
+   `preload.out`:
+   ```bash
+   source scripts/set_memlock_unlimited.sh
+   ```
+   > ⚠️ **Source it, do not `bash` it.**  `ulimit` is a shell builtin
+   > and only affects the shell that executes it.  Running
+   > `bash scripts/set_memlock_unlimited.sh` raises the limit for the
+   > script's subshell only, so any binary you launch from your
+   > interactive shell afterwards will still hit the default cap.
+   > For a permanent cluster-wide fix, add
+   > `*  -  memlock  unlimited` to `/etc/security/limits.conf` and
+   > log out / log in once; after that, step 3 is not needed.
 
 ## Running an experiment
 
@@ -236,6 +274,32 @@ Each client writes three log files next to the binary:
 | `-server.txt`      | Per-request latency for storage-backed (miss) requests. |
 
 The last line of the primary `.txt` file holds the total wall-clock experiment time; strip it before computing latency percentiles.  See `client.c` for the exact output path convention.
+
+### 5. Interpret the result
+
+Towards the end of every run the client prints a saturation summary,
+e.g.:
+
+```
+Packet loss rate: 0.731000
+Rx Throughput (Total): 992680 RPS
+Rx Throughput (Cache): 304813 RPS
+Rx Throughput (Server): 687867 RPS
+```
+
+`Packet loss rate` is `1 − (received_replies / offered_requests)`,
+already expressed as a percentage.  Use it as the primary saturation
+indicator:
+
+| Loss rate | Meaning |
+|-----------|---------|
+| **0 %**   | The system is keeping up with `TARGET_QPS`; reported throughput equals the offered rate and latency reflects a non-congested, steady-state operating point. |
+| **0–2 %** | Healthy operating point — the residual loss is dominated by end-of-experiment tail effects and minor microbursts. |
+| **> 2 %** | Saturated: at least one of (NIC RX, switch cache drain, storage server) is the bottleneck.  Throughput / latency are reported under congestion rather than at steady state — lower `TARGET_QPS` and re-run before reading off any number. |
+
+For peak-throughput sweeps, walk `TARGET_QPS` upward until the loss
+rate first crosses ~1–2 % and report the largest rate that still
+sits in the healthy band.
 
 ## Example result
 
