@@ -18,8 +18,8 @@ Two notes vs. the original NetCache:
   bytes, and per-packet latency is deterministic regardless of
   payload length.
 - **Lookup-only "value memory."**  The match-action table only
-  decides *cached / not-cached*; on a hit, the egress pipeline
-  appends a fixed 64 B dummy payload to the reply.
+  decides *cached / not-cached*; on a hit, the switch appends a
+  fixed 64 B dummy payload to the reply.
 
 ## Files
 
