@@ -288,18 +288,26 @@ Rx Throughput (Server): 687867 RPS
 ```
 
 `Packet loss rate` is `1 − (received_replies / offered_requests)`,
-already expressed as a percentage.  Use it as the primary saturation
-indicator:
+already expressed as a percentage.  Any non-zero value means the
+system has started dropping requests — i.e. it is at or beyond
+saturation — so use the loss rate as the saturation indicator and
+report peak throughput in one of two equivalent ways:
 
-| Loss rate | Meaning |
-|-----------|---------|
-| **0 %**   | The system is keeping up with `TARGET_QPS`; reported throughput equals the offered rate and latency reflects a non-congested, steady-state operating point. |
-| **0–2 %** | Healthy operating point — the residual loss is dominated by end-of-experiment tail effects and minor microbursts. |
-| **> 2 %** | Saturated: at least one of (NIC RX, switch cache drain, storage server) is the bottleneck.  Throughput / latency are reported under congestion rather than at steady state — lower `TARGET_QPS` and re-run before reading off any number. |
+- **Conservative (loss = 0 %).**  Walk `TARGET_QPS` upward in a
+  sweep and report the largest offered rate at which the run still
+  finishes with a 0 % loss rate.  The throughput from the *next*
+  step in the sweep (the first one to show non-zero loss) is
+  saturated and should not be reported.
+- **Practical (loss ≤ 2 %).**  Treat any run with loss ≤ 2 % as
+  saturated and report its `Rx Throughput (Total)` directly.  The
+  small residual loss covers end-of-experiment tail effects and
+  minor microbursts and does not move the headline number
+  appreciably.
 
-For peak-throughput sweeps, walk `TARGET_QPS` upward until the loss
-rate first crosses ~1–2 % and report the largest rate that still
-sits in the healthy band.
+Either convention is fine as long as it is applied consistently
+within a comparison.  Runs with loss > 2 % are reported under
+congestion rather than at steady state and should be re-run with a
+lower `TARGET_QPS` before any number is read off.
 
 ## Example result
 
