@@ -42,9 +42,9 @@ reproduce the paper's microbenchmarks.
 For experienced operators who just want the end-to-end flow:
 
 1. **Build.**  Run `make` on every host; compile `orbitcache/orbitcache.p4` against the SDE on the switch.
-2. **Per-node one-time setup.**  Edit and `sudo ./scripts/setup_arp.sh` (static ARP for the 100 G data network), then `sudo ./scripts/host_setup.sh` (sysctl + hugepages).
+2. **Per-node one-time setup.**  Edit and `sudo ./scripts/setup_arp.sh` (static ARP for the data-plane network), then `sudo ./scripts/host_setup.sh` (sysctl + hugepages).
 3. **Per-shell setup.**  In every terminal that will launch a binary, run `source scripts/set_memlock_unlimited.sh` (must be `source`, not `bash` — see [Host-side setup](#host-side-setup)).
-4. **Switch.**  Start `run_switchd.sh -p orbitcache`, bring up the 100 G ports, then `python3 controller.py`.
+4. **Switch.**  Start `run_switchd.sh -p orbitcache`, bring up the data-plane ports, then `python3 controller.py`.
 5. **Experiment.**  `./preload.out`, then `./server.out 3` on the server hosts and `./client.out 3 3 10 1000000 0` on the client hosts.
 6. **Sanity-check the result.**  Read `Packet loss rate` from the client output — keep it under 2 % for steady-state numbers (see [Interpret the result](#5-interpret-the-result)).
 
@@ -119,8 +119,8 @@ Open three terminals on the switch control plane.
    bfruntime gRPC server started on 0.0.0.0:50052
    ```
 
-2. **Terminal 2 — configure 100 Gbps ports** with `run_bfshell.sh`, then `ucli` and `pm`:
-   - `port-add <port>/- 100G NONE` followed by `port-enb <port>/-` for each data-plane port.
+2. **Terminal 2 — configure data-plane ports** with `run_bfshell.sh`, then `ucli` and `pm`:
+   - `port-add <port>/- 100G NONE` followed by `port-enb <port>/-` for each data-plane port (replace `100G` with whatever speed your testbed runs at).
    - Disable autoneg: `an-set -/- 2`.
 
 3. **Terminal 3 — run the controller.**
@@ -146,7 +146,7 @@ ship a small `scripts/` directory with the three pieces below — the
 files are short, idempotent, and meant to be edited per cluster.
 
 1. **Static ARP.**  The switch does not handle host network setup, so
-   every host that participates on the 100 Gbps data network needs a
+   every host that participates on the data-plane network needs a
    full ARP table.  Edit the `PEERS` array in
    [`scripts/setup_arp.sh`](scripts/setup_arp.sh) so it lists every
    `(data-plane IP, NIC MAC)` pair in your testbed (a few example
@@ -156,7 +156,7 @@ files are short, idempotent, and meant to be edited per cluster.
    sudo ./scripts/setup_arp.sh
    arp -an   # verify
    ```
-   Confirm reachability with `ping` over the 100 Gbps interface
+   Confirm reachability with `ping` over the data-plane interface
    before continuing.
 
 2. **Kernel-bypass tuning (system-wide).**  Sets `net.core.rmem_*`,
