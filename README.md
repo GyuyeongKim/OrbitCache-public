@@ -7,6 +7,37 @@ This repository contains the full P4 data plane, switch-side
 controller, and host-side client / server applications needed to
 reproduce the paper's microbenchmarks.
 
+## How OrbitCache works
+
+<p align="center"><img src="assets/how_it_works.gif" width="820" alt="Animation: NetCache and OrbitCache receive the same reads for a hot item A with a 64 B value and a hot item D with a 1 KB value. NetCache answers A from switch memory and sends every read for D to the storage server, while OrbitCache answers all five reads with circulating cache packets"></p>
+
+Existing in-network caches such as NetCache store hot items in the
+switch memory.  A value is split across match-action stages, and the
+key must fit the match key of the lookup table, so cacheable items are
+limited to 16-byte keys and 128-byte values.  OrbitCache does not
+store hot items in the switch memory.  Each hot item is a *cache
+packet*, a reply packet that carries both the key and the value, and
+the switch keeps it revisiting the data plane through packet
+recirculation.
+
+1. A read request for a cached key (looked up by its key hash) leaves
+   its metadata (client IP, L4 port, and sequence number) in the
+   request table, and the switch drops the request.
+2. Each time the cache packet for that key passes the request table,
+   it takes one pending request.  The switch clones the packet,
+   sends one copy to the client, and keeps the other circulating to
+   serve later requests.
+3. Requests are never recirculated, and only a small number of cache
+   packets circulate, so the recirculation port does not become a
+   bottleneck.  An item can be as large as a single packet allows (up
+   to 1438 bytes of key and value).
+
+The animation shows only reads, and its packet timing is not to scale.
+A write invalidates the cached item until the server's write reply
+brings a new cache packet, and hash collisions are detected at the
+client by comparing the requested key with the key in the reply.  See
+the paper for details.
+
 ## Contents
 
 ```
@@ -18,6 +49,7 @@ reproduce the paper's microbenchmarks.
 ├── Makefile         # builds client.out, server.out, preload.out
 ├── tommyds/         # bundled TommyDS hash-table used by the server
 ├── scripts/         # static-ARP / sysctl / ulimit helpers (edit per cluster)
+├── assets/          # README animation (NetCache vs. OrbitCache)
 ├── orbitcache/
 │   ├── orbitcache.p4    # OrbitCache P4 data plane
 │   └── controller.py    # OrbitCache switch controller
@@ -26,6 +58,7 @@ reproduce the paper's microbenchmarks.
 
 ## Table of contents
 
+- [How OrbitCache works](#how-orbitcache-works)
 - [Quick start](#quick-start)
 - [Hardware dependencies](#hardware-dependencies)
 - [Software dependencies](#software-dependencies)
