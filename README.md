@@ -9,7 +9,7 @@ reproduce the paper's microbenchmarks.
 
 ## How OrbitCache works
 
-<p align="center"><img src="assets/how_it_works.gif" width="820" alt="Animation: NetCache and OrbitCache receive the same reads for a hot item A with a 64 B value and a hot item D with a 1 KB value. NetCache answers A from switch memory and sends every read for D to the storage server, while OrbitCache answers all five reads with circulating cache packets"></p>
+<p align="center"><img src="assets/how_it_works.svg" width="820" alt="Animation: NetCache and OrbitCache receive the same reads for a hot item A with a 64 B value and a hot item D with a 1 KB value. NetCache answers A from switch memory and sends every read for D to the storage server, while OrbitCache answers all five reads with circulating cache packets"></p>
 
 Existing in-network caches such as NetCache store hot items in the
 switch memory.  A value is split across match-action stages, and the
